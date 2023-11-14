@@ -111,6 +111,7 @@ void Network_Break_URL(std::string ServerURL, std::string& ServerName, std::stri
 
 int main(int argc, const char *argv[])
 {
+  _chdir("D:\\Programming\\Cloned\\Bonzomatic\\Debug");
   Misc::PlatformStartup();
 
   std::string configFile = "config.json";
@@ -414,11 +415,28 @@ int main(int argc, const char *argv[])
     printf("Initializing capture system failed!\n");
     return 0;
   }
-  
+
   Renderer::Texture * texPreviousFrame = Renderer::CreateRGBA8Texture();
+
+  Renderer::Texture* computeTextures[2][3] = {
+    {
+      Renderer::CreateR32UIntTexture(),
+      Renderer::CreateR32UIntTexture(),
+      Renderer::CreateR32UIntTexture()
+    },{
+      Renderer::CreateR32UIntTexture(),
+      Renderer::CreateR32UIntTexture(),
+      Renderer::CreateR32UIntTexture()
+    }
+  };
+
+  int computeTexPingPongIndex = 0;
+
   Renderer::Texture * texFFT = Renderer::Create1DR32Texture( FFT_SIZE );
   Renderer::Texture * texFFTSmoothed = Renderer::Create1DR32Texture( FFT_SIZE );
   Renderer::Texture * texFFTIntegrated = Renderer::Create1DR32Texture( FFT_SIZE );
+
+  // Renderer::Texture* computeTexture_new =  Renderer::CreateR32UIntTexture();
 
   std::string shaderFileName = Renderer::defaultShaderFilename;
   if (Network::IsNetworkEnabled())
@@ -760,6 +778,22 @@ int main(int argc, const char *argv[])
       Renderer::UpdateR32Texture( texFFTIntegrated, fftDataIntegrated );
     }
 
+
+    Renderer::ClearTexture(computeTextures[computeTexPingPongIndex][0]);
+    Renderer::ClearTexture(computeTextures[computeTexPingPongIndex][1]);
+    Renderer::ClearTexture(computeTextures[computeTexPingPongIndex][2]);
+    Renderer::BindTextureAsImage(0, computeTextures[computeTexPingPongIndex][0]);
+    Renderer::BindTextureAsImage(1, computeTextures[computeTexPingPongIndex][1]);
+    Renderer::BindTextureAsImage(2, computeTextures[computeTexPingPongIndex][2]);
+    Renderer::BindTextureAsImage(3, computeTextures[1 - computeTexPingPongIndex][0]);
+    Renderer::BindTextureAsImage(4, computeTextures[1 - computeTexPingPongIndex][1]);
+    Renderer::BindTextureAsImage(5, computeTextures[1 - computeTexPingPongIndex][2]);
+    Renderer::SetShaderConstantInt("computeTex[0]", 0);
+    Renderer::SetShaderConstantInt("computeTex[1]", 1);
+    Renderer::SetShaderConstantInt("computeTex[2]", 2);
+    Renderer::SetShaderConstantInt("computeTexBack[0]", 3);
+    Renderer::SetShaderConstantInt("computeTexBack[1]", 4);
+    Renderer::SetShaderConstantInt("computeTexBack[2]", 5);
     Renderer::SetShaderTexture( "texFFT", texFFT );
     Renderer::SetShaderTexture( "texFFTSmoothed", texFFTSmoothed );
     Renderer::SetShaderTexture( "texFFTIntegrated", texFFTIntegrated );
@@ -887,11 +921,34 @@ int main(int argc, const char *argv[])
 
     if (Renderer::nSizeChanged)
     {
+      Renderer::ReleaseTexture(computeTextures[0][0]);
+      Renderer::ReleaseTexture(computeTextures[0][1]);
+      Renderer::ReleaseTexture(computeTextures[0][2]);
+      Renderer::ReleaseTexture(computeTextures[1][0]);
+      Renderer::ReleaseTexture(computeTextures[1][1]);
+      Renderer::ReleaseTexture(computeTextures[1][2]);
       Renderer::ReleaseTexture(texPreviousFrame);
+
+      delete computeTextures[0][0];
+      delete computeTextures[0][1];
+      delete computeTextures[0][2];
+      delete computeTextures[1][0];
+      delete computeTextures[1][1];
+      delete computeTextures[1][2];
+      delete texPreviousFrame;
+
       texPreviousFrame = Renderer::CreateRGBA8Texture();
+      computeTextures[0][0] = Renderer::CreateR32UIntTexture();
+      computeTextures[0][1] = Renderer::CreateR32UIntTexture();
+      computeTextures[0][2] = Renderer::CreateR32UIntTexture();
+      computeTextures[1][0] = Renderer::CreateR32UIntTexture();
+      computeTextures[1][1] = Renderer::CreateR32UIntTexture();
+      computeTextures[1][2] = Renderer::CreateR32UIntTexture();
       Capture::CaptureResize(Renderer::nWidth, Renderer::nHeight);
     }
     Renderer::nSizeChanged = false;
+
+    computeTexPingPongIndex = 1 - computeTexPingPongIndex;
 
     Renderer::EndFrame();
 
@@ -926,6 +983,12 @@ int main(int argc, const char *argv[])
   Renderer::ReleaseTexture(texPreviousFrame);
   Renderer::ReleaseTexture( texFFT );
   Renderer::ReleaseTexture( texFFTSmoothed );
+  computeTextures[0][0] = Renderer::CreateR32UIntTexture();
+  computeTextures[0][1] = Renderer::CreateR32UIntTexture();
+  computeTextures[0][2] = Renderer::CreateR32UIntTexture();
+  computeTextures[1][0] = Renderer::CreateR32UIntTexture();
+  computeTextures[1][1] = Renderer::CreateR32UIntTexture();
+  computeTextures[1][2] = Renderer::CreateR32UIntTexture();
   for (std::map<std::string, Renderer::Texture*>::iterator it = textures.begin(); it != textures.end(); it++)
   {
     Renderer::ReleaseTexture( it->second );

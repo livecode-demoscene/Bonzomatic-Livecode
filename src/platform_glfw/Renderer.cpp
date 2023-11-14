@@ -710,6 +710,15 @@ namespace Renderer
     return true;
   }
 
+  void SetShaderConstantInt( const char * szConstName, int x )
+  {
+    GLint location = glGetUniformLocation( theShader, szConstName );
+    if ( location != -1 )
+    {
+      glProgramUniform1i( theShader, location, x );
+    }
+  }
+
   void SetShaderConstant( const char * szConstName, float x )
   {
     GLint location = glGetUniformLocation( theShader, szConstName );
@@ -728,30 +737,92 @@ namespace Renderer
     }
   }
 
+  struct TextureDescriptor {
+    GLint internalFormat;
+    GLenum srcFormat;
+    GLenum gl_type;
+    TEXTURETYPE texturetype;
+
+    GLint wrap_s;
+    GLint wrap_t;
+    GLint min_filter;
+    GLint mag_filter;
+
+    TextureDescriptor(
+      GLint internalFormat,
+      GLenum srcFormat,
+      GLenum gl_type,
+      TEXTURETYPE texturetype,
+      GLint wrap_s,
+      GLint wrap_y,
+      GLint min_filter,
+      GLint max_filter
+    ): internalFormat(internalFormat), srcFormat(srcFormat), gl_type(gl_type), texturetype(texturetype), wrap_s(wrap_s), wrap_t(wrap_y), min_filter(min_filter), mag_filter(max_filter) {
+    }
+
+  };
+
   struct GLTexture : public Texture
   {
     GLuint ID;
     int unit;
+    GLint internalFormat;
+    GLenum srcFormat;
+    GLenum gl_type;
   };
+
+  GLTexture * CreateTexture(TextureDescriptor descriptor) {
+    GLTexture * tex = new GLTexture();
+    glGenTextures(1, &tex->ID);
+    tex->width = nWidth;
+    tex->height = nHeight;
+    tex->type = descriptor.texturetype;
+    tex->internalFormat = descriptor.internalFormat;
+    tex->srcFormat = descriptor.srcFormat;
+    tex->gl_type = descriptor.gl_type;
+
+    if(tex->type == TEXTURETYPE_2D) {
+      glBindTexture(GL_TEXTURE_2D, tex->ID);
+
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, descriptor.wrap_s);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, descriptor.wrap_t);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, descriptor.min_filter);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, descriptor.mag_filter);
+
+    } else if(tex->type == TEXTURETYPE_1D) {
+      glBindTexture(GL_TEXTURE_1D, tex->ID);
+
+      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, descriptor.wrap_s);
+      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, descriptor.min_filter);
+      glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, descriptor.mag_filter);
+    } else {
+      assert(0);
+    }
+
+    return tex;
+  }
 
   int textureUnit = 0;
   int RGBA8_textureUnit = -1;
 
+  Texture * CreateR32UIntTexture()
+  {
+    GLTexture * tex = CreateTexture(TextureDescriptor(
+       GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT, TEXTURETYPE_2D, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR
+    ));
+
+    glTexImage2D( GL_TEXTURE_2D, 0, tex->internalFormat, nWidth, nHeight, 0, tex->srcFormat, tex->gl_type, NULL );
+
+    return tex;
+  }
+
   Texture * CreateRGBA8Texture()
   {
-    void * data = NULL;
-    GLenum internalFormat = GL_SRGB8_ALPHA8;
-    GLenum srcFormat = GL_FLOAT;
-    GLenum format = GL_UNSIGNED_BYTE;
+    GLTexture * tex = CreateTexture(TextureDescriptor(
+       GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, TEXTURETYPE_2D, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR
+    ));
 
-    GLuint glTexId = 0;
-    glGenTextures(1, &glTexId);
-    glBindTexture(GL_TEXTURE_2D, glTexId);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D( GL_TEXTURE_2D, 0, tex->internalFormat, nWidth, nHeight, 0, tex->srcFormat, tex->gl_type, NULL );
 
     if (RGBA8_textureUnit < 0)
     {
@@ -760,12 +831,8 @@ namespace Renderer
       RGBA8_textureUnit = textureUnit++;
     }
 
-    GLTexture * tex = new GLTexture();
-    tex->width = nWidth;
-    tex->height = nHeight;
-    tex->ID = glTexId;
-    tex->type = TEXTURETYPE_2D;
     tex->unit = RGBA8_textureUnit;
+
     return tex;
   }
 
@@ -775,13 +842,14 @@ namespace Renderer
     int width = 0;
     int height = 0;
     void * data = NULL;
-    GLenum internalFormat = GL_SRGB8_ALPHA8;
-    GLenum srcFormat = GL_RGBA;
-    GLenum format = GL_UNSIGNED_BYTE;
+
+    GLint internalFormat = GL_SRGB8_ALPHA8;
+    GLint gl_type = GL_UNSIGNED_BYTE;
+
     if ( stbi_is_hdr( szFilename ) )
     {
       internalFormat = GL_RGBA32F;
-      format = GL_FLOAT;
+      gl_type = GL_FLOAT;
       data = stbi_loadf( szFilename, &width, &height, &comp, STBI_rgb_alpha );
     }
     else
@@ -790,55 +858,47 @@ namespace Renderer
     }
     if (!data) return NULL;
 
-    GLuint glTexId = 0;
-    glGenTextures( 1, &glTexId );
-    glBindTexture( GL_TEXTURE_2D, glTexId );
+    GLTexture * tex = CreateTexture(TextureDescriptor(
+       internalFormat, GL_RGBA, gl_type, TEXTURETYPE_2D, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR
+    ));
 
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    tex->width = width;
+    tex->height = height;
+    tex->unit = textureUnit++;
 
-    glTexImage2D( GL_TEXTURE_2D, 0, internalFormat, width, height, 0, srcFormat, format, data );
+    glTexImage2D( GL_TEXTURE_2D, 0, tex->internalFormat, width, height, 0, tex->srcFormat, tex->gl_type, data );
 
     stbi_image_free(data);
 
-    GLTexture * tex = new GLTexture();
-    tex->width = width;
-    tex->height = height;
-    tex->ID = glTexId;
-    tex->type = TEXTURETYPE_2D;
-    tex->unit = textureUnit++;
     return tex;
   }
 
   Texture * Create1DR32Texture( int w )
   {
-    GLuint glTexId = 0;
-    glGenTextures( 1, &glTexId );
-    glBindTexture( GL_TEXTURE_1D, glTexId );
 
-    glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    GLTexture * tex = CreateTexture(TextureDescriptor(
+       GL_R32F, GL_RED, GL_FLOAT, TEXTURETYPE_1D, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR
+    ));
+
+    tex->width = w;
+    tex->height = 1;
+    tex->unit = textureUnit++;
 
     float * data = new float[w];
     for ( int i = 0; i < w; ++i )
       data[i] = 0.0f;
 
-    glTexImage1D( GL_TEXTURE_1D, 0, GL_R32F, w, 0, GL_RED, GL_FLOAT, data );
+    glTexImage1D( GL_TEXTURE_1D, 0, tex->internalFormat, tex->width, 0, tex->srcFormat, tex->gl_type, data );
 
     delete[] data;
 
     glBindTexture( GL_TEXTURE_1D, 0 );
 
-    GLTexture * tex = new GLTexture();
-    tex->width = w;
-    tex->height = 1;
-    tex->ID = glTexId;
-    tex->type = TEXTURETYPE_1D;
-    tex->unit = textureUnit++;
     return tex;
+  }
+
+  void ClearTexture(Texture * tex) {
+    glClearTexImage(((GLTexture*)tex)->ID, 0, ((GLTexture*)tex)->srcFormat, ((GLTexture*)tex)->gl_type, nullptr);
   }
 
   void SetShaderTexture( const char * szTextureName, Texture * tex )
@@ -859,33 +919,44 @@ namespace Renderer
     }
   }
 
+  void BindTextureAsImage( unsigned int unit, Texture * tex )
+  {
+    if (!tex)
+      return;
+
+    int tex_id = ((GLTexture*)tex)->ID;
+    GLint internalFormat = ((GLTexture*)tex)->internalFormat;
+
+    glBindImageTexture(unit, tex_id, 0, GL_FALSE, 0, GL_READ_WRITE, internalFormat);
+  }
+
   bool UpdateR32Texture( Texture * tex, float * data )
   {
     glActiveTexture( GL_TEXTURE0 + ((GLTexture*)tex)->unit );
     glBindTexture( GL_TEXTURE_1D, ((GLTexture*)tex)->ID );
-    glTexSubImage1D( GL_TEXTURE_1D, 0, 0, tex->width, GL_RED, GL_FLOAT, data );
+
+    GLenum format = ((GLTexture*)tex)->srcFormat;
+    GLenum type = ((GLTexture*)tex)->gl_type;
+    glTexSubImage1D( GL_TEXTURE_1D, 0, 0, tex->width, format, type, data );
 
     return true;
   }
 
   Texture * CreateA8TextureFromData( int w, int h, const unsigned char * data )
   {
-    GLuint glTexId = 0;
-    glGenTextures(1, &glTexId);
-    glBindTexture(GL_TEXTURE_2D, glTexId);
-    unsigned int * p32bitData = new unsigned int[ w * h ];
-    for(int i=0; i<w*h; i++) p32bitData[i] = (data[i] << 24) | 0xFFFFFF;
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, p32bitData);
-    delete[] p32bitData;
+    GLTexture * tex = CreateTexture(TextureDescriptor(
+       GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, TEXTURETYPE_2D, GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR
+    ));
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-    GLTexture * tex = new GLTexture();
     tex->width = w;
     tex->height = h;
-    tex->ID = glTexId;
-    tex->type = TEXTURETYPE_2D;
-    tex->unit = 0; // this is always 0 cos we're not using shaders here
+    tex->unit = 0;
+
+    unsigned int * p32bitData = new unsigned int[ w * h ];
+    for(int i=0; i<w*h; i++) p32bitData[i] = (data[i] << 24) | 0xFFFFFF;
+    glTexImage2D(GL_TEXTURE_2D, 0, tex->internalFormat , w, h, 0, tex->srcFormat , tex->gl_type, p32bitData);
+    delete[] p32bitData;
+
     return tex;
   }
 
@@ -896,9 +967,10 @@ namespace Renderer
 
   void CopyBackbufferToTexture(Texture * tex)
   {
-    glActiveTexture(GL_TEXTURE0 + ((GLTexture *)tex)->unit);
+    int unit = ((GLTexture *)tex)->unit;
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, ((GLTexture *)tex)->ID);
-    glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, nWidth, nHeight, 0);
+    glCopyTexImage2D(GL_TEXTURE_2D, 0, ((GLTexture *)tex)->internalFormat, 0, 0, nWidth, nHeight, 0);
   }
 
   //////////////////////////////////////////////////////////////////////////
