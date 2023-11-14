@@ -111,7 +111,7 @@ void Network_Break_URL(std::string ServerURL, std::string& ServerName, std::stri
 
 int main(int argc, const char *argv[])
 {
-  _chdir("D:\\Programming\\Cloned\\Bonzomatic\\Debug");
+  // _chdir("D:\\Programming\\Cloned\\Bonzomatic\\Debug");
   Misc::PlatformStartup();
 
   std::string configFile = "config.json";
