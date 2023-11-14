@@ -779,6 +779,7 @@ int main(int argc, const char *argv[])
     }
 
 
+
     Renderer::ClearTexture(computeTextures[computeTexPingPongIndex][0]);
     Renderer::ClearTexture(computeTextures[computeTexPingPongIndex][1]);
     Renderer::ClearTexture(computeTextures[computeTexPingPongIndex][2]);
