@@ -137,8 +137,8 @@ namespace Renderer
     "uniform float {%midi:name%};\n"
     "{%midi:end%}" // leave off \n here
     "\n"
-    "layout(r32ui) uniform coherent restrict uimage2D[3] computeTex;\n"
-    "layout(r32ui) uniform coherent restrict uimage2D[3] computeTexBack;\n"
+    "layout(r32ui) uniform coherent uimage2D[3] computeTex;\n"
+    "layout(r32ui) uniform coherent uimage2D[3] computeTexBack;\n"
     "\n"
     "layout(location = 0) out vec4 out_color; // out_color must be written in order to see anything\n"
     "\n"
