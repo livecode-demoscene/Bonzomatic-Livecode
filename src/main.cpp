@@ -711,8 +711,10 @@ int main(int argc, const char *argv[])
           bool consumed = false;
           if (Renderer::keyEventBuffer[i].scanCode)
           {
+            int key = Renderer::keyEventBuffer[i].scanCode;
             mShaderEditor.KeyDown(
-              iswalpha(Renderer::keyEventBuffer[i].scanCode) ? towupper(Renderer::keyEventBuffer[i].scanCode) : Renderer::keyEventBuffer[i].scanCode,
+              // Scintilla expects scancode, hence uppercase letters
+              isalpha(key) ? toupper(key) : key,
               Renderer::keyEventBuffer[i].shift,
               Renderer::keyEventBuffer[i].ctrl,
               Renderer::keyEventBuffer[i].alt,
