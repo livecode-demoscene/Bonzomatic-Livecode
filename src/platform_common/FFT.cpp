@@ -42,6 +42,23 @@ namespace FFT
     }
   }
 
+  ma_device_id *getDevice(std::string CaptureDeviceSearchString, ma_uint32 count, ma_device_info *device_list)
+  {
+    for (ma_uint32 i = 0; i < count; ++i) {
+      std::string name = device_list[i].name;
+      if (name == CaptureDeviceSearchString){
+        return &device_list[i].id;
+      }
+    }
+    for (ma_uint32 i = 0; i < count; ++i) {
+      std::string name = device_list[i].name;
+      if (name.find(CaptureDeviceSearchString) != std::string::npos) {
+        return &device_list[i].id;
+      }
+    }
+    return NULL;
+  }
+
   bool Open(bool CapturePlaybackDevices, const char* CaptureDeviceSearchString)
   {
     memset( sampleBuf, 0, sizeof( float ) * FFT_SIZE * 2 );
@@ -84,22 +101,10 @@ namespace FFT
     }
 
     if(strlen(CaptureDeviceSearchString) > 0) {
-      if(CapturePlaybackDevices) {
-        for (ma_uint32 iDevice = 0; iDevice < playbackDeviceCount; ++iDevice) {
-          std::string DeviceName = pPlaybackDeviceInfos[iDevice].name;
-          if(DeviceName.find(CaptureDeviceSearchString) != std::string::npos ){
-            TargetDevice = &pPlaybackDeviceInfos[iDevice].id;
-            break;
-          }
-        }
+      if (CapturePlaybackDevices) {
+        TargetDevice = getDevice(CaptureDeviceSearchString, playbackDeviceCount, pPlaybackDeviceInfos);
       } else {
-        for (ma_uint32 iDevice = 0; iDevice < captureDeviceCount; ++iDevice) {
-          std::string DeviceName = pCaptureDeviceInfos[iDevice].name;
-          if(DeviceName.find(CaptureDeviceSearchString) != std::string::npos ){
-            TargetDevice = &pCaptureDeviceInfos[iDevice].id;
-            break;
-          }
-        }
+        TargetDevice = getDevice(CaptureDeviceSearchString, captureDeviceCount, pCaptureDeviceInfos);
       }
     }
 
