@@ -70,7 +70,7 @@ namespace FFT
     ma_result result = ma_context_init( NULL, 0, &context_config, &context );
     if ( result != MA_SUCCESS )
     {
-      printf( "[FFT] Failed to initialize context: %d", result );
+      printf( "[FFT] Failed to initialize context: %s (%d)", ma_result_description(result), result );
       return false;
     }
 
@@ -122,7 +122,7 @@ namespace FFT
     if ( result != MA_SUCCESS )
     {
       ma_context_uninit( &context );
-      printf( "[FFT] Failed to initialize capture device: %d\n", result );
+      printf( "[FFT] Failed to initialize capture device: %s (%d)\n", ma_result_description(result), result );
       return false;
     }
 
@@ -131,7 +131,7 @@ namespace FFT
     {
       ma_device_uninit( &captureDevice );
       ma_context_uninit( &context );
-      printf( "[FFT] Failed to start capture device: %d\n", result );
+      printf( "[FFT] Failed to start capture device: %s (%d)\n", ma_result_description(result), result );
       return false;
     }
 
