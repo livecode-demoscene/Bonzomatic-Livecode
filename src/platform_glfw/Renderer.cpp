@@ -541,16 +541,36 @@ namespace Renderer
         case GLFW_KEY_RIGHT_SUPER:
           sciKey = 0;
           break;
+      case GLFW_KEY_A: sciKey = 'A'; break;
+      case GLFW_KEY_B: sciKey = 'B'; break;
+      case GLFW_KEY_C: sciKey = 'C'; break;
+      case GLFW_KEY_D: sciKey = 'D'; break;
+      case GLFW_KEY_E: sciKey = 'E'; break;
+      case GLFW_KEY_F: sciKey = 'F'; break;
+      case GLFW_KEY_G: sciKey = 'G'; break;
+      case GLFW_KEY_H: sciKey = 'H'; break;
+      case GLFW_KEY_I: sciKey = 'I'; break;
+      case GLFW_KEY_J: sciKey = 'J'; break;
+      case GLFW_KEY_K: sciKey = 'K'; break;
+      case GLFW_KEY_L: sciKey = 'L'; break;
+      case GLFW_KEY_M: sciKey = 'M'; break;
+      case GLFW_KEY_N: sciKey = 'N'; break;
+      case GLFW_KEY_O: sciKey = 'O'; break;
+      case GLFW_KEY_P: sciKey = 'P'; break;
+      case GLFW_KEY_Q: sciKey = 'Q'; break;
+      case GLFW_KEY_R: sciKey = 'R'; break;
+      case GLFW_KEY_S: sciKey = 'S'; break;
+      case GLFW_KEY_T: sciKey = 'T'; break;
+      case GLFW_KEY_U: sciKey = 'U'; break;
+      case GLFW_KEY_V: sciKey = 'V'; break;
+      case GLFW_KEY_W: sciKey = 'W'; break;
+      case GLFW_KEY_X: sciKey = 'X'; break;
+      case GLFW_KEY_Y: sciKey = 'Y'; break;
+      case GLFW_KEY_Z: sciKey = 'Z'; break;
         default:
-          bNormalKey = true;
-          // TODO: Horrible hack to migrate from GLFW (that uses ascii maj for keys) to scintilla min keys
-          if ( (key >= GLFW_KEY_A) && (key <= GLFW_KEY_Z) ) {
-            sciKey = key+32;
-          }
-          else {
-            sciKey = 0;
-          }
+	  sciKey = 0;
       }
+      bNormalKey = sciKey >= 'A' && sciKey <= 'Z';
       if ((bNormalKey && mods) || !bNormalKey)
       {
         keyEventBuffer[keyEventBufferCount].ctrl  = (mods & GLFW_MOD_CONTROL) || (mods & GLFW_MOD_SUPER);
