@@ -92,13 +92,13 @@ namespace FFT
     for (ma_uint32 iDevice = 0; iDevice < playbackDeviceCount; ++iDevice) {
         printf("    %u: %s\n", iDevice, pPlaybackDeviceInfos[iDevice].name);
     }
-    
     printf("\n");
 
     printf("Capture Devices\n");
     for (ma_uint32 iDevice = 0; iDevice < captureDeviceCount; ++iDevice) {
         printf("    %u: %s\n", iDevice, pCaptureDeviceInfos[iDevice].name);
     }
+    printf("\n");
 
     if(strlen(CaptureDeviceSearchString) > 0) {
       if (CapturePlaybackDevices) {
@@ -108,7 +108,6 @@ namespace FFT
       }
     }
 
-    printf("\n");
 
     ma_device_config config = ma_device_config_init( CapturePlaybackDevices ? ma_device_type_loopback : ma_device_type_capture );
     config.capture.pDeviceID = TargetDevice;
