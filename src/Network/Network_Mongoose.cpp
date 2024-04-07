@@ -178,16 +178,16 @@ namespace Network
 		Data << "Compile" << NewMessage.NeedRecompile;
 		Data << "Caret" << NewMessage.CaretPosition;
 		Data << "Anchor" << NewMessage.AnchorPosition;
-    Data << "FirstVisibleLine" << NewMessage.FirstVisibleLine;
-    Data << "RoomName" << RoomName;
-    Data << "NickName" << NickName;
-    Data << "ShaderTime" << NetworkTime + shaderOffset;
-    if(SendMidiControls) Data << "Parameters" << shaderParameters;
+		Data << "FirstVisibleLine" << NewMessage.FirstVisibleLine;
+		Data << "RoomName" << RoomName;
+		Data << "NickName" << NickName;
+		Data << "ShaderTime" << NetworkTime + shaderOffset;
+		if(SendMidiControls) Data << "Parameters" << shaderParameters;
     
 		jsonxx::Object Message = Object("Data", Data);
 		std::string TextJson = Message.json();
 		//printf("JSON: %s\n", TextJson.c_str());
-		mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, TextJson.c_str(), TextJson.length()+1);
+		mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, TextJson.c_str(), TextJson.length());
 		LastSendTime = NetworkTime;
 	}
 
