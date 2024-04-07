@@ -87,6 +87,12 @@ namespace FFT
         printf("Failed to retrieve device information.\n");
         return -3;
     }
+    if (!ma_context_is_loopback_supported(&context)) {
+        if (CapturePlaybackDevices) {
+            printf("[FFT] Audio backend doesn't support capturing playback device (loopback)\n");
+            CapturePlaybackDevices = false; /* best we can do */
+        }
+    }
 
     printf("Playback Devices\n");
     for (ma_uint32 iDevice = 0; iDevice < playbackDeviceCount; ++iDevice) {
