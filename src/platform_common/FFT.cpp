@@ -119,7 +119,7 @@ namespace FFT
     config.capture.pDeviceID = TargetDevice;
     config.capture.format = ma_format_f32;
     config.capture.channels = 2;
-    config.sampleRate = 44100;
+    config.sampleRate = 48000;
     config.dataCallback = OnReceiveFrames;
     config.pUserData = NULL;
 
