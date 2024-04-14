@@ -1,9 +1,5 @@
 var searchData=
 [
-  ['compat_2edox',['compat.dox',['../compat_8dox.html',1,'']]],
-  ['compile_2edox',['compile.dox',['../compile_8dox.html',1,'']]],
-  ['compiling_20glfw',['Compiling GLFW',['../compile_guide.html',1,'']]],
-  ['context_20reference',['Context reference',['../group__context.html',1,'']]],
-  ['context_2edox',['context.dox',['../context_8dox.html',1,'']]],
-  ['context_20guide',['Context guide',['../context_guide.html',1,'']]]
+  ['3_0',['Moving from GLFW 2 to 3',['../moving_guide.html',1,'']]],
+  ['3_204_1',['Release notes for version 3.4',['../news.html',1,'']]]
 ];
