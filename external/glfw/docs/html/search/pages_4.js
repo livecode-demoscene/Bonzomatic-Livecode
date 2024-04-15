@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['input_20guide',['Input guide',['../input_guide.html',1,'']]],
-  ['internal_20structure',['Internal structure',['../internals_guide.html',1,'']]],
-  ['introduction_20to_20the_20api',['Introduction to the API',['../intro_guide.html',1,'']]]
+  ['building_20applications_0',['Building applications',['../build_guide.html',1,'']]]
 ];
