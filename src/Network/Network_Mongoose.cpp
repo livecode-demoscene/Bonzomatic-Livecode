@@ -48,47 +48,37 @@ namespace Network
 
 	static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
 		(void)nc;
-
 		switch (ev) {
 			case MG_EV_CONNECT: {
-				int status = *((int *)ev_data);
-				if (status != 0) {
-					printf("-- Connection error: %d\n", status);
-				}
-        TryingToConnect = false;
+        		TryingToConnect = false;
 				break;
 			}
-			case MG_EV_WEBSOCKET_HANDSHAKE_DONE: {
-				struct http_message *hm = (struct http_message *) ev_data;
-				if (hm->resp_code == 101) {
-					printf("-- Connected\n");
+			case MG_EV_ERROR : {
+				break;
+			}
+			case MG_EV_WS_OPEN: {
 					s_is_connected = 1;
 					bNetworkLaunched = true;
-				}
-				else {
-					printf("-- Connection failed! HTTP code %d\n", hm->resp_code);
-					/* Connection will be closed after this. */
-				}
 				break;
 			}
 			case MG_EV_POLL: {
-				//char msg[500];
-				//strcpy(msg, "Bonjour de loin");
-				//mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, msg, strlen(msg));
 				break;
 			}
-			case MG_EV_WEBSOCKET_FRAME: {
-				struct websocket_message *wm = (struct websocket_message *) ev_data;
-				//printf("Grabbed message %d.\n", (int)wm->size);
-				RecieveShader(wm->size, wm->data);
+			case MG_EV_WS_MSG: {
+				struct mg_ws_message  *wm = (struct mg_ws_message  *) ev_data;
+				RecieveShader((int)wm->data.len, ( unsigned char *)wm->data.buf);
 				// TODO: clean the buffer with mbuf_remove(); ? or maybe not needed with websocket ...
+				break;
+			}
+			case MG_EV_WS_CTL:{
+				//printf("%p %s", nc->fd, (char *) ev_data);
 				break;
 			}
 			case MG_EV_CLOSE: {
 				if (s_is_connected) printf("-- Disconnected\n");
 				s_done = 1;
 				bNetworkLaunched = false;
-        ShaderHasBeenCompiled = false; // So we will try to recompile when connection is on again
+        		ShaderHasBeenCompiled = false; // So we will try to recompile when connection is on again
 				break;
 			}
 		}
@@ -141,9 +131,9 @@ namespace Network
 			printf("Network Launching as sender\n");
 		}
 
-    Network_Break_URL(ServerURL, ServerName, RoomName, NickName);
+        Network_Break_URL(ServerURL, ServerName, RoomName, NickName);
 
-		mg_mgr_init(&mgr, NULL);
+		mg_mgr_init(&mgr);
   }
 
   void OpenConnection()
@@ -154,7 +144,8 @@ namespace Network
 
 		// ws://127.0.0.1:8000
 		printf("Try to connect to %s\n", ServerURL.c_str());
-		nc = mg_connect_ws(&mgr, ev_handler, ServerURL.c_str(), "ws_chat", NULL);
+		bool done = false;
+		nc = mg_ws_connect(&mgr, ServerURL.c_str() , ev_handler,&done, NULL);
 		if (nc == NULL) {
 			fprintf(stderr, "Invalid address\n");
 			return;
@@ -164,7 +155,7 @@ namespace Network
 	void BroadcastMessage(const char* msg) {
 		if (!bNetworkLaunched) return;
 
-		mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, msg, strlen(msg)+1);
+		mg_ws_send(nc, msg, strlen(msg)+1, WEBSOCKET_OP_TEXT);
 	}
 
 	void SendShader(ShaderMessage NewMessage, float shaderOffset, const jsonxx::Object& shaderParameters) {
@@ -187,7 +178,7 @@ namespace Network
 		jsonxx::Object Message = Object("Data", Data);
 		std::string TextJson = Message.json();
 		//printf("JSON: %s\n", TextJson.c_str());
-		mg_send_websocket_frame(nc, WEBSOCKET_OP_TEXT, TextJson.c_str(), TextJson.length());
+		mg_ws_send(nc, TextJson.c_str(), TextJson.length(), WEBSOCKET_OP_TEXT);
 		LastSendTime = NetworkTime;
 	}
 
