@@ -667,7 +667,7 @@ int main(int argc, const char *argv[])
         // adjust offset so that time restarts from 0
         shaderTimeOffset = -time;
       }
-      else if (Renderer::keyEventBuffer[i].scanCode == 286 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'r')) // F5
+      else if (Renderer::keyEventBuffer[i].scanCode == 286 || (Renderer::keyEventBuffer[i].ctrl == 1 && Renderer::keyEventBuffer[i].scanCode == 82)) // F5
       {
         mShaderEditor.GetText(szShader,65535);
 
@@ -714,7 +714,7 @@ int main(int argc, const char *argv[])
             int key = Renderer::keyEventBuffer[i].scanCode;
             mShaderEditor.KeyDown(
               // Scintilla expects scancode, hence uppercase letters
-              isalpha(key) ? toupper(key) : key,
+              key >= 'a' || key <= 'z'? toupper(key) : key,
               Renderer::keyEventBuffer[i].shift,
               Renderer::keyEventBuffer[i].ctrl,
               Renderer::keyEventBuffer[i].alt,
