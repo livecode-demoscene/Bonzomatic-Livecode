@@ -660,21 +660,21 @@ int main(int argc, const char *argv[])
 	Renderer::keyEventBuffer[i].scanCode = key;
       }
 
-      if (Renderer::keyEventBuffer[i].scanCode == 283) // F2
+      if (key == KEY_F2)
       {
          bTexPreviewVisible = !bTexPreviewVisible;
          needEditorUpdate = true;
       }
-      else if (Renderer::keyEventBuffer[i].scanCode == 284) // F3
+      else if (key == KEY_F3)
       {
         bGrabberFollowCaret = !bGrabberFollowCaret;
       }
-      else if (Renderer::keyEventBuffer[i].scanCode == 285) // F4
+      else if (key == KEY_F4)
       {
         // adjust offset so that time restarts from 0
         shaderTimeOffset = -time;
       }
-      else if (Renderer::keyEventBuffer[i].scanCode == 286 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'R')) // F5
+      else if (key == KEY_F5 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'R'))
       {
         mShaderEditor.GetText(szShader,65535);
 
@@ -707,7 +707,7 @@ int main(int argc, const char *argv[])
           mDebugOutput.SetText( szError );
         }
       }
-      else if (Renderer::keyEventBuffer[i].scanCode == 292 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'F')) // F11 or Ctrl/Cmd-f
+      else if (key == KEY_F11 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'F'))
       {
         bShowGui = !bShowGui;
       }
