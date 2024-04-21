@@ -653,6 +653,13 @@ int main(int argc, const char *argv[])
 
     for(int i=0; i<Renderer::keyEventBufferCount; i++)
     {
+      int key = Renderer::keyEventBuffer[i].scanCode;
+
+      if (key >= 'a' && key <= 'z') {
+	key = toupper(key);
+	Renderer::keyEventBuffer[i].scanCode = key;
+      }
+
       if (Renderer::keyEventBuffer[i].scanCode == 283) // F2
       {
          bTexPreviewVisible = !bTexPreviewVisible;
@@ -667,7 +674,7 @@ int main(int argc, const char *argv[])
         // adjust offset so that time restarts from 0
         shaderTimeOffset = -time;
       }
-      else if (Renderer::keyEventBuffer[i].scanCode == 286 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'r')) // F5
+      else if (Renderer::keyEventBuffer[i].scanCode == 286 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'R')) // F5
       {
         mShaderEditor.GetText(szShader,65535);
 
@@ -700,7 +707,7 @@ int main(int argc, const char *argv[])
           mDebugOutput.SetText( szError );
         }
       }
-      else if (Renderer::keyEventBuffer[i].scanCode == 292 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'f')) // F11 or Ctrl/Cmd-f  
+      else if (Renderer::keyEventBuffer[i].scanCode == 292 || (Renderer::keyEventBuffer[i].ctrl && Renderer::keyEventBuffer[i].scanCode == 'F')) // F11 or Ctrl/Cmd-f
       {
         bShowGui = !bShowGui;
       }
@@ -711,10 +718,8 @@ int main(int argc, const char *argv[])
           bool consumed = false;
           if (Renderer::keyEventBuffer[i].scanCode)
           {
-            int key = Renderer::keyEventBuffer[i].scanCode;
             mShaderEditor.KeyDown(
-              // Scintilla expects scancode, hence uppercase letters
-              (key >= 0 && key < 0x80) ? toupper(key) : key,
+              Renderer::keyEventBuffer[i].scanCode,
               Renderer::keyEventBuffer[i].shift,
               Renderer::keyEventBuffer[i].ctrl,
               Renderer::keyEventBuffer[i].alt,
