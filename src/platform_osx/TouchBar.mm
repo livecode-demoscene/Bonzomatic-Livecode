@@ -123,13 +123,13 @@ typedef enum {
     Renderer::keyEventBuffer[Renderer::keyEventBufferCount].character = 0;
     switch (command) {
         case toggleGUI:
-            Renderer::keyEventBuffer[Renderer::keyEventBufferCount].scanCode = 292;
+            Renderer::keyEventBuffer[Renderer::keyEventBufferCount].scanCode = KEY_F11;
             break;
         case toggleTextures:
-            Renderer::keyEventBuffer[Renderer::keyEventBufferCount].scanCode = 283;
+            Renderer::keyEventBuffer[Renderer::keyEventBufferCount].scanCode = KEY_F2;
             break;
         case compile:
-            Renderer::keyEventBuffer[Renderer::keyEventBufferCount].scanCode = 286;
+            Renderer::keyEventBuffer[Renderer::keyEventBufferCount].scanCode = KEY_F5;
             break;
     }
     Renderer::keyEventBufferCount++;
