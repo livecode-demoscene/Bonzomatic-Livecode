@@ -1,6 +1,20 @@
 #include <Platform.h>
 #include "NetworkSettings.h"
 
+/* custom scancode for Fn keys */
+#define KEY_F1 282
+#define KEY_F2 283
+#define KEY_F3 284
+#define KEY_F4 285
+#define KEY_F5 286
+#define KEY_F6 287
+#define KEY_F7 288
+#define KEY_F8 289
+#define KEY_F9 290
+#define KEY_F10 291
+#define KEY_F11 292
+#define KEY_F12 293
+
 typedef enum {
   RENDERER_WINDOWMODE_WINDOWED = 0,
   RENDERER_WINDOWMODE_FULLSCREEN,

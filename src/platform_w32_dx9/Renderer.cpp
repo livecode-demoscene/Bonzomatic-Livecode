@@ -223,11 +223,11 @@ namespace Renderer
 //         case VK_LEFTBRACKET:  sciKey = '[';           break;
 //         case VK_BACKSLASH:    sciKey = '\\';          break;
 //         case VK_RIGHTBRACKET: sciKey = ']';           break;
-        case VK_F2:         sciKey = 283;      break;
-        case VK_F3:         sciKey = 284;      break;
-        case VK_F4:         sciKey = 285;      break;
-        case VK_F5:         sciKey = 286;      break;
-        case VK_F11:        sciKey = 292;      break;
+        case VK_F2:         sciKey = KEY_F2;      break;
+        case VK_F3:         sciKey = KEY_F3;      break;
+        case VK_F4:         sciKey = KEY_F4;      break;
+        case VK_F5:         sciKey = KEY_F5;      break;
+        case VK_F11:        sciKey = KEY_F11;      break;
         case VK_SHIFT:
         case VK_LSHIFT:
         case VK_RSHIFT:

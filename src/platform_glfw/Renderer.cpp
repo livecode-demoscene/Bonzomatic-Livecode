@@ -519,18 +519,18 @@ namespace Renderer
 //           case GLFW_KEY_LEFTBRACKET:  sciKey = '[';           break;
 //           case GLFW_KEY_BACKSLASH:    sciKey = '\\';          break;
 //           case GLFW_KEY_RIGHTBRACKET: sciKey = ']';           break;
-        case GLFW_KEY_F1:           sciKey = 282;           break;
-        case GLFW_KEY_F2:           sciKey = 283;           break;
-        case GLFW_KEY_F3:           sciKey = 284;           break;
-        case GLFW_KEY_F4:           sciKey = 285;           break;
-        case GLFW_KEY_F5:           sciKey = 286;           break;
-        case GLFW_KEY_F6:           sciKey = 287;           break;
-        case GLFW_KEY_F7:           sciKey = 288;           break;
-        case GLFW_KEY_F8:           sciKey = 289;           break;
-        case GLFW_KEY_F9:           sciKey = 290;           break;
-        case GLFW_KEY_F10:          sciKey = 291;           break;
-        case GLFW_KEY_F11:          sciKey = 292;           break;
-        case GLFW_KEY_F12:          sciKey = 293;           break;
+        case GLFW_KEY_F1:           sciKey = KEY_F1;           break;
+        case GLFW_KEY_F2:           sciKey = KEY_F2;           break;
+        case GLFW_KEY_F3:           sciKey = KEY_F3;           break;
+        case GLFW_KEY_F4:           sciKey = KEY_F4;           break;
+        case GLFW_KEY_F5:           sciKey = KEY_F5;           break;
+        case GLFW_KEY_F6:           sciKey = KEY_F6;           break;
+        case GLFW_KEY_F7:           sciKey = KEY_F7;           break;
+        case GLFW_KEY_F8:           sciKey = KEY_F8;           break;
+        case GLFW_KEY_F9:           sciKey = KEY_F9;           break;
+        case GLFW_KEY_F10:          sciKey = KEY_F10;           break;
+        case GLFW_KEY_F11:          sciKey = KEY_F11;           break;
+        case GLFW_KEY_F12:          sciKey = KEY_F12;           break;
         case GLFW_KEY_LEFT_SHIFT:
         case GLFW_KEY_RIGHT_SHIFT:
         case GLFW_KEY_LEFT_ALT:
