@@ -21,7 +21,7 @@ namespace Network
 
     bool SyncTimeWithSender = true;
     bool NewTimeToGrab = false;
-    float GrabShaderTime = 0.0;
+    double GrabShaderTime = 0.0;
 
     bool SendMidiControls = true;
     bool GrabMidiControls = true;
@@ -45,7 +45,7 @@ namespace Network
     std::string RoomName;
     std::string NickName;
 
-    void RecieveShader(size_t size, unsigned char *data);
+    void RecieveShader(size_t size, const char  *data);
 
     static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
         (void)nc;
@@ -67,7 +67,12 @@ namespace Network
             }
             case MG_EV_WS_MSG: {
                 struct mg_ws_message  *wm = (struct mg_ws_message  *) ev_data;
-                RecieveShader((int)wm->data.len, ( unsigned char *)wm->data.buf);
+                
+                // We only call ReceiveShader if we are in grabber mode, it doesn't make sense to do it on Sender mode
+                if(NetworkMode == NetMode_Grabber)
+                {
+                    RecieveShader((int)wm->data.len, ( const char *)wm->data.buf);
+                }
                 // TODO: clean the buffer with mbuf_remove(); ? or maybe not needed with websocket ...
                 break;
             }
@@ -195,7 +200,7 @@ namespace Network
         return (NetworkTime - LastSendTime >= ShaderUpdateInterval);
     }
 
-    void RecieveShader(size_t size, unsigned char *data)
+    void RecieveShader(size_t size, const char *data)
     {
         // TODO: very very bad, we should:
         // - use json
@@ -229,14 +234,14 @@ namespace Network
 
         LastGrabberShader = NewShader;
         NewShaderToGrab = true;
-
-        if (Data.has<jsonxx::Number>("ShaderTime"))
+        if(!mg_json_get_num(mg_str(data),"$.Data.ShaderTime",&GrabShaderTime))
         {
-          NewTimeToGrab = true;
-          GrabShaderTime = Data.get<jsonxx::Number>("ShaderTime");
-        }
-        else {
-          NewTimeToGrab = false;
+            printf("Can't fetch Data.ShaderTime");
+            NewTimeToGrab = false;
+        } 
+        else 
+        {
+            NewTimeToGrab = true;
         }
     }
 
