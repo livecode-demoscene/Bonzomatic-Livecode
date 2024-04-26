@@ -70,7 +70,7 @@ namespace FFT
     ma_result result = ma_context_init( NULL, 0, &context_config, &context );
     if ( result != MA_SUCCESS )
     {
-      printf( "[FFT] Failed to initialize context: %d", result );
+      printf( "[FFT] Failed to initialize context: %s (%d)", ma_result_description(result), result );
       return false;
     }
 
@@ -87,18 +87,24 @@ namespace FFT
         printf("Failed to retrieve device information.\n");
         return -3;
     }
+    if (!ma_context_is_loopback_supported(&context)) {
+        if (CapturePlaybackDevices) {
+            printf("[FFT] Audio backend doesn't support capturing playback device (loopback)\n");
+            CapturePlaybackDevices = false; /* best we can do */
+        }
+    }
 
     printf("Playback Devices\n");
     for (ma_uint32 iDevice = 0; iDevice < playbackDeviceCount; ++iDevice) {
         printf("    %u: %s\n", iDevice, pPlaybackDeviceInfos[iDevice].name);
     }
-    
     printf("\n");
 
     printf("Capture Devices\n");
     for (ma_uint32 iDevice = 0; iDevice < captureDeviceCount; ++iDevice) {
         printf("    %u: %s\n", iDevice, pCaptureDeviceInfos[iDevice].name);
     }
+    printf("\n");
 
     if(strlen(CaptureDeviceSearchString) > 0) {
       if (CapturePlaybackDevices) {
@@ -108,13 +114,12 @@ namespace FFT
       }
     }
 
-    printf("\n");
 
     ma_device_config config = ma_device_config_init( CapturePlaybackDevices ? ma_device_type_loopback : ma_device_type_capture );
     config.capture.pDeviceID = TargetDevice;
     config.capture.format = ma_format_f32;
     config.capture.channels = 2;
-    config.sampleRate = 44100;
+    config.sampleRate = 48000;
     config.dataCallback = OnReceiveFrames;
     config.pUserData = NULL;
 
@@ -122,7 +127,7 @@ namespace FFT
     if ( result != MA_SUCCESS )
     {
       ma_context_uninit( &context );
-      printf( "[FFT] Failed to initialize capture device: %d\n", result );
+      printf( "[FFT] Failed to initialize capture device: %s (%d)\n", ma_result_description(result), result );
       return false;
     }
 
@@ -131,7 +136,7 @@ namespace FFT
     {
       ma_device_uninit( &captureDevice );
       ma_context_uninit( &context );
-      printf( "[FFT] Failed to start capture device: %d\n", result );
+      printf( "[FFT] Failed to start capture device: %s (%d)\n", ma_result_description(result), result );
       return false;
     }
 
