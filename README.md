@@ -1,3 +1,9 @@
+# Project on dead end /!\ 
+Keeping it for reference / PR.
+
+
+Check this one instead :  https://github.com/livecode-demoscene/Bonzomatic
+
 # Bonzomatic Network
 
 ## What's this?
