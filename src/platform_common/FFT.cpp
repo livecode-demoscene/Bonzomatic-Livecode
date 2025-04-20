@@ -13,6 +13,7 @@ namespace FFT
   kiss_fftr_cfg fftcfg;
   ma_context context;
   ma_device captureDevice;
+  bool ma_init_done;
   float sampleBuf[ FFT_SIZE * 2 ];
   float fAmplification = 1.0f;
   bool bPeakNormalization = true;
@@ -137,6 +138,7 @@ namespace FFT
 
     printf( "[FFT] Capturing %s\n", captureDevice.capture.name );
 
+    ma_init_done = true;
     return true;
   }
   bool GetFFT( float * _samples )
@@ -171,10 +173,12 @@ namespace FFT
   }
   void Close()
   {
-    ma_device_stop( &captureDevice );
-
-    ma_device_uninit( &captureDevice );
-    ma_context_uninit( &context );
+    if (ma_init_done) {
+      ma_device_stop( &captureDevice );
+      ma_device_uninit( &captureDevice );
+      ma_context_uninit( &context );
+      ma_init_done = false;
+    }
 
     kiss_fft_free( fftcfg );
   }
